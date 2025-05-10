@@ -8,10 +8,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#0eb9c6', // Teal
-        secondary: '#f76547', // Orange-red
-        accent: '#f76547', // Orange-red
-        highlight: '#0eb9c6', // Teal for consistent highlighting
+        primary: 'COMPANY PRIMARY COLOR PLACEHOLDER'
+        secondary: 'COMPANY SECONDARY COLOR PLACEHOLDER'
+        accent: '#000000', // COMPANY ACCENT COLOR PLACEHOLDER
+        highlight: '#000000', // COMPANY HIGHLIGHT COLOR PLACEHOLDER
         background: '#ffffff', // White
         text: '#333333', // Dark gray for regular text
         footer: {
