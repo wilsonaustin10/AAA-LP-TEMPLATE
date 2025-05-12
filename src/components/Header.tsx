@@ -11,8 +11,8 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <div className="relative w-[320px] h-[85px]">
               <Image
-                src="COMPANY LOGO PLACEHOLDER"
-                alt="COMPANY LOGO PLACEHOLDER"
+                src="/logoplaceholder.png"
+                alt="Company Logo"
                 fill
                 style={{ objectFit: 'contain' }}
                 priority

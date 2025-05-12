@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'COMPANY PRIMARY COLOR PLACEHOLDER'
-        secondary: 'COMPANY SECONDARY COLOR PLACEHOLDER'
+        primary: 'COMPANY PRIMARY COLOR PLACEHOLDER',
+        secondary: 'COMPANY SECONDARY COLOR PLACEHOLDER',
         accent: '#000000', // COMPANY ACCENT COLOR PLACEHOLDER
         highlight: '#000000', // COMPANY HIGHLIGHT COLOR PLACEHOLDER
         background: '#ffffff', // White

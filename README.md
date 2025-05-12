@@ -1,4 +1,4 @@
-# Caesar Cash Offer Landing Page
+# AAA-LANDING PAGE-TEMPLATE
 
 A responsive landing page for collecting property information from potential sellers, integrated with Zapier for lead management.
 

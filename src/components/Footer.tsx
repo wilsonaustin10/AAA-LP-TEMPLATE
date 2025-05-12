@@ -12,10 +12,10 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Image
-                src="/Go Big Serve Logo.png"
-                alt="Go Big Serve LLC"
-                width={160}
-                height={160}
+                src="/logoplaceholder.png"
+                alt="Company Logo"
+                width={120}
+                height={120}
                 className="mr-2"
               />
             </div>
@@ -93,7 +93,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-footer-text/20 text-center text-footer-text/80">
-          <p>© {new Date().getFullYear()} Go Big Serve LLC. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} COMPANY NAME PLACEHOLDER. All rights reserved.</p>
           <div className="mt-2 space-x-4">
             <Link href="/privacy" className="hover:text-footer-hover transition-colors">
               Privacy Policy
