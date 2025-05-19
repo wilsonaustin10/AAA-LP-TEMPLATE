@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3 text-gray-800">1. Introduction</h2>
               <p>
-                COMPANY NAME PLACEHOLDER ("we," "our," or "us") respects your privacy and is committed to protecting 
+                <%businessName%>> ("we," "our," or "us") respects your privacy and is committed to protecting 
                 it through our compliance with this policy. This policy describes the types of information we 
                 may collect from you or that you may provide when you visit our website and our practices for 
                 collecting, using, maintaining, protecting, and disclosing that information.
@@ -128,12 +128,12 @@ export default function PrivacyPolicy() {
               <p>
                 To ask questions or comment about this privacy policy and our privacy practices, contact us at: 
                 <br />
-                <a href="mailto:COMPANY EMAIL PLACEHOLDER" className="text-primary hover:underline">
-                  COMPANY EMAIL PLACEHOLDER
+                <a href="mailto:<%publicEmail%>" className="text-primary hover:underline">
+                  <%publicEmail%>
                 </a>
                 <br />
-                <a href="tel:COMPANY PHONE NUMBER PLACEHOLDER" className="text-primary hover:underline">
-                  COMPANY PHONE NUMBER PLACEHOLDER
+                <a href="tel:<%publicPhone%>" className="text-primary hover:underline">
+                  <%publicPhone%>
                 </a>
               </p>
             </section>
