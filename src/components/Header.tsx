@@ -11,7 +11,7 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <div className="relative w-[320px] h-[85px]">
               <Image
-                src="/<%logoURL%>"
+                src="/<%logoUrl%>"
                 alt="<%businessName%>"
                 fill
                 style={{ objectFit: 'contain' }}

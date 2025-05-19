@@ -12,7 +12,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Image
-                src="/<%logoURL%>"
+                src="/<%logoUrl%>"
                 alt="<%businessName%>"
                 width={120}
                 height={120}
