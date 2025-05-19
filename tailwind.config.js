@@ -15,9 +15,9 @@ module.exports = {
         background: '#ffffff', // White
         text: '#333333', // Dark gray for regular text
         footer: {
-          bg: '#0eb9c6', // Teal
+          bg: '<%primaryColor%>',
           text: '#ffffff', // White
-          hover: '#f76547', // Orange-red
+          hover: '<%secondaryColor%>',
         }
       },
     },

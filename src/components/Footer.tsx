@@ -12,8 +12,8 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Image
-                src="/logoplaceholder.png"
-                alt="Company Logo"
+                src="/<%logoURL%>"
+                alt="<%businessName%>"
                 width={120}
                 height={120}
                 className="mr-2"
@@ -24,18 +24,18 @@ export default function Footer() {
             </p>
             <div className="space-y-2">
               <a 
-                href="tel: (469)-415-9588"
+                href="tel: <%publicPhone%>"
                 className="flex items-center space-x-2 text-footer-text/80 hover:text-footer-hover transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                <span>(469) 415-9588</span>
+                <span><%publicPhone%></span>
               </a>
               <a 
-                href="mailto:contact@goservebigllc.com"
+                href="mailto:<%publicEmail%>"
                 className="flex items-center space-x-2 text-footer-text/80 hover:text-footer-hover transition-colors"
               >
                 <Mail className="h-4 w-4" />
-                <span>contact@goservebigllc.com</span>
+                <span><%publicEmail%></span>
               </a>
             </div>
           </div>
@@ -67,12 +67,10 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Specializing In</h3>
             <ul className="space-y-2">
               <li className="text-footer-text/80">Pre-Foreclosure</li>
-              <li className="text-footer-text/80">Probate</li>
+              <li className="text-footer-text/80">Divorce</li>
               <li className="text-footer-text/80">Storm Damage</li>
               <li className="text-footer-text/80">Tax Liens</li>
-              <li className="text-footer-text/80">Evictions</li>
-              <li className="text-footer-text/80">Fire Damage</li>
-              <li className="text-footer-text/80">Water Damage</li>
+              <li className="text-footer-text/80">Bad Tenants</li>
               <li className="text-footer-text/80">Code Violations</li>
             </ul>
           </div>
@@ -93,7 +91,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-footer-text/20 text-center text-footer-text/80">
-          <p>© {new Date().getFullYear()} COMPANY NAME PLACEHOLDER. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} <%businessName%>. All rights reserved.</p>
           <div className="mt-2 space-x-4">
             <Link href="/privacy" className="hover:text-footer-hover transition-colors">
               Privacy Policy
