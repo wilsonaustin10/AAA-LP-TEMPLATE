@@ -1,26 +1,105 @@
 # AAA-LANDING PAGE-TEMPLATE
 
-A responsive landing page for collecting property information from potential sellers, integrated with Zapier for lead management.
+A responsive Next.js 15 landing page for collecting property information from potential sellers, integrated with multiple CRM systems for lead management.
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18.x or higher (recommended: 20.x)
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd AAA-LP-Template
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Copy environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. Configure your environment variables in `.env.local` (see Environment Variables section below)
+
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Common Issues and Solutions
+
+### Logo Not Appearing
+- Ensure `NEXT_PUBLIC_LOGO_URL` is properly configured in `.env.local`
+- If using external image hosting, verify the domain is added to `next.config.js`
+- Check browser console for any image loading errors
+
+### Script Loading Errors
+- Scripts with event handlers must be in client components
+- Google Maps and Analytics scripts are handled by the `ClientScripts` component
+- Ensure your Google Maps API key has the correct permissions
+
+### Next.js Version Conflicts
+- This template uses Next.js 15.x
+- If you have a global Next.js installation, the project version takes precedence
+- Run `npx next --version` to verify you're using the correct version
 
 ## Environment Variables
 
-The application uses environment variables for configuration. Copy the `.env.example` file to `.env` and fill in the appropriate values:
+The application uses environment variables for configuration. Copy the `.env.example` file to `.env.local`:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 ### Required Environment Variables
 
-- `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: Google Maps API key with Places API enabled
-- `ZAPIER_WEBHOOK_URL`: URL for the Zapier webhook to receive form submissions
+```bash
+# Google Maps API (required for address autocomplete)
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+```
 
-### Optional Environment Variables
+### Branding Configuration
 
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: Google Analytics measurement ID
-- `NEXT_PUBLIC_FB_PIXEL_ID`: Facebook Pixel ID for conversion tracking
-- `NEXT_PUBLIC_HOTJAR_ID`: Hotjar site ID for user behavior tracking
-- `NEXT_PUBLIC_SERVICE_AREAS`: Array of service areas as a JSON string
+```bash
+# Company branding
+NEXT_PUBLIC_LOGO_URL=https://your-domain.com/logo.png
+NEXT_PUBLIC_COMPANY_NAME=Your Company Name
+NEXT_PUBLIC_PHONE_NUMBER=+1234567890
+NEXT_PUBLIC_EMAIL=contact@yourcompany.com
+```
+
+### Analytics & Tracking (Optional)
+
+```bash
+# Google Analytics
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GA_ADS_ID=AW-XXXXXXXXX
+
+# Facebook Pixel
+NEXT_PUBLIC_FB_PIXEL_ID=YOUR_FACEBOOK_PIXEL_ID
+
+# Hotjar
+NEXT_PUBLIC_HOTJAR_ID=YOUR_HOTJAR_ID
+```
+
+### CRM Integration
+
+```bash
+# Go High Level
+NEXT_PUBLIC_GHL_ENDPOINT=https://your-webhook-url
+GHL_API_KEY=your-api-key
+
+# Service Areas (JSON array)
+NEXT_PUBLIC_SERVICE_AREAS=["California","Nevada","Arizona"]
 
 ## API Key Security
 

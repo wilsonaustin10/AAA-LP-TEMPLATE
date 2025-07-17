@@ -12,8 +12,8 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Image
-                src="<%logoUrl%>"
-                alt="<%businessName%>"
+                src={process.env.NEXT_PUBLIC_LOGO_URL || "<%logoUrl%>"}
+                alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "<%businessName%>"}
                 width={120}
                 height={40}
                 className="mr-2"
