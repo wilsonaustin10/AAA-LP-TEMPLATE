@@ -9,11 +9,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center">
-            <div className="relative w-[320px] h-[85px]">
+            <div className="relative w-auto h-auto">
               <Image
-                src="/<%logoUrl%>"
+                src="<%logoUrl%>"
                 alt="<%businessName%>"
-                fill
+                width={150}
+                height={40}
                 style={{ objectFit: 'contain' }}
                 priority
                 className="hover:opacity-90 transition-opacity"
@@ -23,19 +24,19 @@ export default function Header() {
           <nav className="hidden md:flex space-x-8">
             <Link 
               href="/" 
-              className="text-primary hover:text-accent font-medium transition-colors"
+              className="text-primary hover:text-accent font-medium transition-colors text-lg"
             >
               Home
             </Link>
             <Link 
               href="#how-it-works" 
-              className="text-primary hover:text-accent font-medium transition-colors"
+              className="text-primary hover:text-accent font-medium transition-colors text-lg"
             >
               How It Works
             </Link>
             <Link 
               href="#testimonials" 
-              className="text-primary hover:text-accent font-medium transition-colors"
+              className="text-primary hover:text-accent font-medium transition-colors text-lg"
             >
               Testimonials
             </Link>

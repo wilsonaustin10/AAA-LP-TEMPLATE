@@ -7,9 +7,28 @@ const nextConfig = {
   // Enable static optimization
   reactStrictMode: true,
   poweredByHeader: false,
-  // Configure image domains if needed
+  // Configure external image sources
   images: {
-    domains: ['localhost', 'offer.goservebig.com'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'offer.goservebig.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
   // Add domain for Maps API
   async headers() {
