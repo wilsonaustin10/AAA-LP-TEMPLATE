@@ -12,8 +12,8 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center">
               <Image
-                src={process.env.NEXT_PUBLIC_LOGO_URL || "<%logoUrl%>"}
-                alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "<%businessName%>"}
+                src={process.env.NEXT_PUBLIC_LOGO_URL || "{{logoUrl}}"}
+                alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "{{businessName}}"}
                 width={120}
                 height={40}
                 className="mr-2"
@@ -24,18 +24,18 @@ export default function Footer() {
             </p>
             <div className="space-y-2">
               <a 
-                href="tel:<%publicPhone%>"
+                href="tel:{{publicPhone}}"
                 className="flex items-center space-x-2 text-gray-400 hover:text-gray-100 transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                <span>{ '<%publicPhone%>' }</span>
+                <span>{{publicPhone}}</span>
               </a>
               <a 
-                href="mailto:<%publicEmail%>"
+                href="mailto:{{publicEmail}}"
                 className="flex items-center space-x-2 text-gray-400 hover:text-gray-100 transition-colors"
               >
                 <Mail className="h-4 w-4" />
-                <span>{ '<%publicEmail%>' }</span>
+                <span>{{publicEmail}}</span>
               </a>
             </div>
           </div>
@@ -91,7 +91,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-400">
-          <p>© {new Date().getFullYear()} { '<%businessName%>' }. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} {{businessName}}. All rights reserved.</p>
           <div className="mt-2 space-x-4">
             <Link href="/privacy" className="hover:text-gray-100 transition-colors">
               Privacy Policy

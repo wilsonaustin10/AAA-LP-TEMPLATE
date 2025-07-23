@@ -6,7 +6,7 @@ export function HowItWorks() {
     {
       icon: MessageSquare,
       title: 'Tell us about your property',
-      description: "It's quick, easy, and free!"
+      description: "It&apos;s quick, easy, and free!"
     },
     {
       icon: Clock,
@@ -53,7 +53,7 @@ export function HowItWorks() {
 
         <div className="mt-12 bg-white p-6 rounded-lg shadow-sm">
           <p className="text-center text-gray-700">
-            <span className="font-semibold">Timeframe:</span> Once we get your information, we're usually able to make you a fair all-cash offer within 24 hours. From there, we can close as quickly as 7 days… or on your schedule.
+            <span className="font-semibold">Timeframe:</span> Once we get your information, we&apos;re usually able to make you a fair all-cash offer within 24 hours. From there, we can close as quickly as 7 days… or on your schedule.
           </p>
         </div>
       </div>

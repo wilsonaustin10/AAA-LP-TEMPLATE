@@ -1,13 +1,20 @@
-'use client';
-
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { FormProvider } from '../context/FormContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import Script from 'next/script';
+import { ClientLayout } from './client-layout';
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: '{{COMPANY_NAME}} - Sell Your House Fast',
+  description: 'Get a fair cash offer for your house in {{CITY}}. No repairs, no commissions, close on your timeline.',
+  keywords: 'sell house fast, cash home buyers, {{CITY}} home buyers, sell my house',
+  openGraph: {
+    title: '{{COMPANY_NAME}} - Sell Your House Fast in {{CITY}}',
+    description: 'Get a fair cash offer for your house. No repairs, no commissions.',
+    type: 'website',
+  },
+};
 
 export default function RootLayout({
   children,
@@ -16,43 +23,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <Script
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
-          strategy="beforeInteractive"
-          onLoad={() => {
-            console.log('Google Maps script loaded');
-          }}
-          onError={(e) => {
-            console.error('Error loading Google Maps script:', e);
-          }}
-        />
-        <Script
-          strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=AW-17041108639"
-        />
-        <Script
-          id="gtag-init"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'AW-17041108639');
-            `,
-          }}
-        />
-      </head>
       <body className={inter.className}>
-        <FormProvider>
-          <Header />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
-        </FormProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
-} 
+}

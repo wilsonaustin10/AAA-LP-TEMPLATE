@@ -1,13 +1,10 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { CheckCircle, Clock, Phone, ArrowRight } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
 
 export default function ThankYouPage() {
-  const router = useRouter();
-
   useEffect(() => {
     trackEvent('thank_you_page_view');
     
@@ -26,7 +23,7 @@ export default function ThankYouPage() {
             <CheckCircle className="h-16 w-16 text-green-500" />
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Thank You! We've Received Your Information
+            Thank You! We&apos;ve Received Your Information
           </h1>
           <p className="text-xl text-gray-600">
             One of our property specialists will contact you shortly with your cash offer
@@ -44,7 +41,7 @@ export default function ThankYouPage() {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Quick Response</h3>
                 <p className="text-gray-600">
-                  We'll review your property details and contact you immediately with a fair cash offer
+                  We&apos;ll review your property details and contact you immediately with a fair cash offer
                 </p>
               </div>
             </div>
@@ -56,7 +53,7 @@ export default function ThankYouPage() {
               <div>
                 <h3 className="font-semibold text-lg mb-1">Personal Consultation</h3>
                 <p className="text-gray-600">
-                  We'll discuss your specific situation and answer any questions you have about the process
+                  We&apos;ll discuss your specific situation and answer any questions you have about the process
                 </p>
               </div>
             </div>

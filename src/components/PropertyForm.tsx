@@ -1,273 +1,267 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from '../context/FormContext';
-import AddressInput from './AddressInput';
+import AddressAutocomplete from './AddressAutocomplete';
+import PhoneInput from './PhoneInput';
+import { Check, Loader2 } from 'lucide-react';
 import type { AddressData } from '../types/GooglePlacesTypes';
-import { trackEvent, trackConversion } from '../utils/analytics';
-import { Loader2, AlertCircle } from 'lucide-react';
 
-interface FormErrors {
-  address?: string;
-  phone?: string;
-  consent?: string;
-  submit?: string;
+interface PropertyFormProps {
+  onSuccess?: () => void;
+  showConsent?: boolean;
+  submitButtonText?: string;
+  isCompactMode?: boolean;
 }
 
-export default function PropertyForm() {
+export default function PropertyForm({
+  onSuccess,
+  showConsent = true,
+  submitButtonText = 'Get My Cash Offer',
+  isCompactMode = false,
+}: PropertyFormProps) {
   const router = useRouter();
-  const { formState, updateFormData } = useForm();
-  const [step, setStep] = useState(1);
+  const { 
+    formState, 
+    updateFormData, 
+    errors, 
+    setFieldError,
+    clearFieldError,
+  } = useForm();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
-    return phoneRegex.test(phone);
-  };
+  // Handle field touch for validation
+  const handleFieldTouch = useCallback((field: string) => {
+    setTouchedFields(prev => new Set([...prev, field]));
+  }, []);
 
-  const handleBlur = (field: keyof FormErrors) => {
-    setTouched(prev => ({ ...prev, [field]: true }));
-    validateForm();
-  };
-
-  const handleAddressSelect = (addressData: AddressData) => {
-    trackEvent('property_address_selected', { 
+  // Handle address selection
+  const handleAddressSelect = useCallback((addressData: AddressData) => {
+    updateFormData({
       address: addressData.formattedAddress,
-      placeId: addressData.placeId 
+      streetAddress: `${addressData.streetNumber} ${addressData.street}`.trim(),
+      city: addressData.city,
+      state: addressData.state,
+      postalCode: addressData.postalCode,
+      placeId: addressData.placeId,
     });
-    updateFormData(addressData);
-    setErrors(prev => ({ ...prev, address: undefined }));
-    setTouched(prev => ({ ...prev, address: true }));
-    setStep(2);
-  };
+    clearFieldError('address');
+    handleFieldTouch('address');
+  }, [updateFormData, clearFieldError, handleFieldTouch]);
 
-  const formatPhoneNumber = (value: string) => {
-    const phone = value.replace(/\D/g, '');
-    if (phone.length < 4) return phone;
-    if (phone.length < 7) return `(${phone.slice(0, 3)}) ${phone.slice(3)}`;
-    return `(${phone.slice(0, 3)}) ${phone.slice(3, 6)}-${phone.slice(6, 10)}`;
-  };
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    updateFormData({ phone: formatted });
-    
-    // Validate phone if touched
-    if (touched.phone) {
-      setErrors(prev => ({
-        ...prev,
-        phone: validatePhone(formatted) ? undefined : 'Please enter a valid phone number'
-      }));
+  // Handle phone change
+  const handlePhoneChange = useCallback((phone: string) => {
+    updateFormData({ phone });
+    if (touchedFields.has('phone') && phone.length >= 10) {
+      clearFieldError('phone');
     }
-  };
+  }, [updateFormData, clearFieldError, touchedFields]);
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formState.address?.trim()) {
-      newErrors.address = 'Please enter a valid property address';
-    }
-
+  // Handle phone blur
+  const handlePhoneBlur = useCallback(() => {
+    handleFieldTouch('phone');
     if (!formState.phone) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!validatePhone(formState.phone)) {
+      setFieldError('phone', 'Phone number is required');
+    } else if (formState.phone.length < 10) {
+      setFieldError('phone', 'Please enter a valid phone number');
+    }
+  }, [formState.phone, handleFieldTouch, setFieldError]);
+
+  // Handle consent change
+  const handleConsentChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    updateFormData({ consent: e.target.checked });
+    if (e.target.checked) {
+      clearFieldError('consent');
+    }
+    handleFieldTouch('consent');
+  }, [updateFormData, clearFieldError, handleFieldTouch]);
+
+  // Validate form before submission
+  const validateForm = useCallback((): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formState.address) {
+      newErrors.address = 'Please enter your property address';
+    }
+    if (!formState.phone || formState.phone.length < 10) {
       newErrors.phone = 'Please enter a valid phone number';
     }
-
-    if (!formState.consent) {
-      newErrors.consent = 'You must consent to be contacted';
+    if (showConsent && !formState.consent) {
+      newErrors.consent = 'Please agree to be contacted';
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    Object.entries(newErrors).forEach(([field, error]) => {
+      setFieldError(field, error);
+    });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+    return Object.keys(newErrors).length === 0;
+  }, [formState, showConsent, setFieldError]);
+
+  // Handle form submission
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form before submission
-    const validationErrors: Record<string, string> = {};
-    
-    if (!formState.address?.trim()) {
-      validationErrors.address = 'Address is required';
-    }
-    
-    if (!formState.phone?.trim()) {
-      validationErrors.phone = 'Phone number is required';
-    } else if (!/^\(\d{3}\) \d{3}-\d{4}$/.test(formState.phone)) {
-      validationErrors.phone = 'Invalid phone format. Please use (XXX) XXX-XXXX';
-    }
+    // Mark all fields as touched
+    ['address', 'phone', 'consent'].forEach(field => handleFieldTouch(field));
 
-    if (!formState.consent) {
-      validationErrors.consent = 'You must consent to be contacted';
-    }
-
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    setErrors({});
 
     try {
-      const dataToSubmit = {
-        ...formState,
-        lastUpdated: new Date().toISOString()
-      };
-
-      console.log('Submitting form data:', {
-        address: dataToSubmit.address,
-        phone: dataToSubmit.phone,
-        consent: dataToSubmit.consent
-      });
-
+      // Submit initial lead data
       const response = await fetch('/api/submit-partial', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSubmit)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: formState.address,
+          streetAddress: formState.streetAddress,
+          city: formState.city,
+          state: formState.state,
+          postalCode: formState.postalCode,
+          phone: formState.phone,
+          consent: formState.consent,
+          timestamp: new Date().toISOString(),
+        }),
       });
 
-      let result;
-      try {
-        const text = await response.text();
-        result = text ? JSON.parse(text) : {};
-        if (!response.ok) {
-          console.error('API error response:', text);
-          throw new Error(`API error: ${response.status} ${response.statusText}`);
-        }
-      } catch (parseError) {
-        console.error('Error parsing API response:', parseError);
-        throw new Error(`Failed to parse API response: ${response.status} ${response.statusText}`);
-      }
-      
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to save lead data');
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
       }
 
-      // Store leadId in form state for later use
+      const result = await response.json();
+      
+      // Update form with lead ID
       updateFormData({ leadId: result.leadId });
 
-      trackEvent('form_submitted', { 
-        address: formState.address,
-        hasPhone: !!formState.phone
-      });
+      // Track conversion
+      if (typeof window !== 'undefined') {
+        window.gtag?.('event', 'generate_lead', {
+          currency: 'USD',
+          value: 0
+        });
+        window.fbq?.('track', 'Lead');
+      }
 
-      router.push('/property-listed');
-
+      // Navigate to next step or call success callback
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/property-details');
+      }
     } catch (error) {
       console.error('Form submission error:', error);
-      setErrors(prev => ({
-        ...prev,
-        submit: error instanceof Error ? error.message : 'An error occurred'
-      }));
+      setFieldError('form', 'Something went wrong. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [
+    formState,
+    validateForm,
+    handleFieldTouch,
+    updateFormData,
+    setFieldError,
+    router,
+    onSuccess,
+  ]);
+
+  // Memoize form layout class
+  const formClass = useMemo(() => 
+    isCompactMode 
+      ? 'space-y-4' 
+      : 'space-y-6',
+    [isCompactMode]
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white/90 p-6 rounded-lg shadow-lg">
-      {step === 1 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Enter Your Property Address</h2>
-          <AddressInput 
-            onAddressSelect={handleAddressSelect}
-            error={touched.address ? errors.address : undefined}
-          />
-          {errors.address && touched.address && (
-            <div className="flex items-center space-x-1 text-red-500 text-sm">
-              <AlertCircle className="h-4 w-4" />
-              <span>{errors.address}</span>
-            </div>
-          )}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className={formClass} noValidate>
+      <div className="space-y-4">
+        <AddressAutocomplete
+          value={formState.address}
+          onChange={handleAddressSelect}
+          error={touchedFields.has('address') ? errors.address : undefined}
+          required
+          autoFocus
+          placeholder="Enter property address"
+        />
 
-      {step === 2 && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-800">Enter Your Phone Number</h2>
-          <div className="space-y-1">
-            <input
-              type="tel"
-              placeholder="(555) 555-5555"
-              className={`w-full px-4 py-3 text-lg border rounded-lg transition-colors
-                ${errors.phone && touched.phone 
-                  ? 'border-red-500 focus:ring-red-500' 
-                  : 'border-gray-300 focus:ring-primary'}
-                focus:ring-2 focus:border-transparent`}
-              value={formState.phone || ''}
-              onChange={handlePhoneChange}
-              onBlur={() => handleBlur('phone')}
-              maxLength={14}
-              required
-              aria-invalid={Boolean(errors.phone && touched.phone)}
-              aria-describedby={errors.phone ? 'phone-error' : undefined}
-            />
-            
-            {errors.phone && touched.phone && (
-              <div id="phone-error" className="flex items-center space-x-1 text-red-500 text-sm">
-                <AlertCircle className="h-4 w-4" />
-                <span>{errors.phone}</span>
-              </div>
-            )}
-          </div>
+        <PhoneInput
+          value={formState.phone}
+          onChange={handlePhoneChange}
+          onBlur={handlePhoneBlur}
+          error={touchedFields.has('phone') ? errors.phone : undefined}
+          required
+          placeholder="Your phone number"
+        />
 
-          <div className="space-y-2">
-            <label className="flex items-start space-x-3">
+        {showConsent && (
+          <div className="flex items-start">
+            <div className="flex items-center h-5">
               <input
+                id="consent"
+                name="consent"
                 type="checkbox"
-                className="mt-1 h-4 w-4 text-secondary border-gray-300 rounded focus:ring-secondary"
-                checked={formState.consent || false}
-                onChange={(e) => updateFormData({ consent: e.target.checked })}
-                onBlur={() => handleBlur('consent')}
+                checked={formState.consent}
+                onChange={handleConsentChange}
+                className={`
+                  h-4 w-4 rounded border-gray-300 
+                  text-primary focus:ring-primary
+                  ${touchedFields.has('consent') && errors.consent ? 'border-red-500' : ''}
+                `}
                 required
               />
-              <span className="text-sm text-gray-600">
-                By checking this box, I consent to being contacted by phone, email, or text message about my property sale inquiry, including through auto-dialed or pre-recorded messages.
-              </span>
-            </label>
-            {errors.consent && touched.consent && (
-              <div className="flex items-center space-x-1 text-red-500 text-sm">
-                <AlertCircle className="h-4 w-4" />
-                <span>{errors.consent}</span>
-              </div>
-            )}
-          </div>
-          
-          {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-800">{errors.submit}</p>
             </div>
-          )}
+            <div className="ml-3 text-sm">
+              <label htmlFor="consent" className="text-gray-700">
+                I agree to be contacted by {{COMPANY_NAME}} about my property
+              </label>
+              {touchedFields.has('consent') && errors.consent && (
+                <p className="mt-1 text-red-600 text-xs">{errors.consent}</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting || !formState.phone || !formState.consent || !!errors.phone}
-            onClick={() => {
-              if (formState.phone && formState.consent && !errors.phone && !isSubmitting) {
-                trackConversion('AW-17041108639', 'sghECKX6-fkYELD4yf8p');
-              }
-            }}
-            className={`w-full px-4 py-3 text-lg font-semibold text-white bg-secondary rounded-lg hover:bg-secondary/90 transition-colors
-              ${(isSubmitting || !formState.phone || !formState.consent || !!errors.phone) ? 'opacity-70 cursor-not-allowed' : ''}`}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center">
-                <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                Submitting...
-              </span>
-            ) : (
-              'Get Your Cash Offer'
-            )}
-          </button>
+      {errors.form && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-800">{errors.form}</p>
         </div>
       )}
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className={`
+          w-full px-6 py-4 text-lg font-semibold text-white 
+          bg-primary hover:bg-primary-dark rounded-lg
+          transition-all duration-200 transform hover:scale-[1.02]
+          disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+          focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+          ${isCompactMode ? 'py-3' : 'py-4'}
+        `}
+      >
+        {isSubmitting ? (
+          <span className="flex items-center justify-center">
+            <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5" />
+            Processing...
+          </span>
+        ) : (
+          <span className="flex items-center justify-center">
+            {submitButtonText}
+            <Check className="ml-2 h-5 w-5" />
+          </span>
+        )}
+      </button>
+
+      <p className="text-center text-sm text-gray-600">
+        No fees, no commissions, no obligation
+      </p>
     </form>
   );
 }

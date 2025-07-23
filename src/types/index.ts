@@ -1,3 +1,4 @@
+// Form Types
 export interface LeadFormData {
   // Address fields (required)
   address: string;
@@ -34,14 +35,26 @@ export interface FormState extends LeadFormData {
   error?: string;
 }
 
+export interface FormErrors {
+  [key: string]: string | undefined;
+  address?: string;
+  phone?: string;
+  consent?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  propertyCondition?: string;
+  timeframe?: string;
+  price?: string;
+  form?: string;
+}
+
 export type FormStep = 
   | 'initial'
   | 'property-details'
   | 'timeline'
   | 'contact'
   | 'thank-you';
-
-export * from './form';
 
 export interface SubmissionResponse {
   success: boolean;
@@ -50,6 +63,7 @@ export interface SubmissionResponse {
   leadId?: string;
 }
 
+// UI Component Types
 export interface Testimonial {
   name: string;
   location: string;
@@ -58,7 +72,39 @@ export interface Testimonial {
   image?: string;
 }
 
-// ... any other exports ...
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
 
+export interface PropertyConditionOption {
+  value: string;
+  label: string;
+  description?: string;
+}
 
- 
+export interface TimeframeOption {
+  value: string;
+  label: string;
+  description?: string;
+}
+
+// Analytics Types
+export interface AnalyticsEvent {
+  event: string;
+  category?: string;
+  label?: string;
+  value?: number;
+  custom_parameters?: Record<string, any>;
+}
+
+// API Types
+export interface APIResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
+}
+
+// Re-export from form.ts for backward compatibility
+export * from './form';

@@ -19,6 +19,7 @@ export interface AddressData {
 }
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace google.maps.places {
     interface Autocomplete {
       Autocomplete: new (

@@ -22,13 +22,13 @@ export default function AddressInput({
   readOnly = false
 }: AddressInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<AddressData | null>(null);
   const [localError, setLocalError] = useState<string>('');
   const { formState, updateFormData, errors } = useForm();
 
-  // Handle Google Places selection
+  // Define handleAddressSelect before useGooglePlaces call
   const handleAddressSelect = async (addressData: AddressData) => {
     setIsProcessing(true);
     
@@ -63,10 +63,8 @@ export default function AddressInput({
     }
   };
 
-  // Only initialize Google Places if not readOnly
-  if (!readOnly) {
-    useGooglePlaces(inputRef, handleAddressSelect);
-  }
+  // Call useGooglePlaces unconditionally, passing readOnly
+  useGooglePlaces(inputRef, handleAddressSelect, readOnly);
 
   const error = externalError || localError || errors?.address;
 

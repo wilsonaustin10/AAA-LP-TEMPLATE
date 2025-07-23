@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from '../../context/FormContext';
+// import { useForm } from '../../context/FormContext'; // Commented out as per lint/summary
 import { trackEvent } from '../../utils/analytics';
 
 export default function PropertyDetailsPage() {
   const router = useRouter();
-  const { formState, updateFormData } = useForm();
+  // const { formState, updateFormData } = useForm(); // Commented out as per lint/summary
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

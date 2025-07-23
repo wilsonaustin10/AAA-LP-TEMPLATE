@@ -1,8 +1,9 @@
 import React from 'react';
 import PropertyForm from '../components/PropertyForm';
 import Testimonials from '../components/Testimonials';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import TrustBadges from '../components/TrustBadges';  // Kept for future use
-import { CheckCircle } from 'lucide-react';
+// import { CheckCircle } from 'lucide-react'; // Removed CheckCircle
 import { Benefits } from '../components/Benefits';
 import { HowItWorks } from '../components/HowItWorks';
 
@@ -44,7 +45,7 @@ export default function Home() {
               },
               {
                 title: 'No Repairs Needed',
-                description: 'We buy houses in any condition - you won\'t need to fix anything'
+                description: 'We buy houses in any condition - you won&apos;t need to fix anything'
               },
               {
                 title: 'No Fees or Commissions',

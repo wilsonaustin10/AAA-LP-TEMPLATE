@@ -18,7 +18,7 @@ function validateFormData(data: Partial<LeadFormData>): data is LeadFormData {
   
   for (const field of requiredFields) {
     if (!data[field]) {
-      throw new Error(`${field} is required`);
+      throw new Error(`${String(field)} is required`);
     }
   }
 
@@ -76,7 +76,7 @@ async function sendToZapier(data: LeadFormData) {
       throw new Error(`Failed to send to Zapier: ${response.statusText}`);
     }
 
-    return await response.json();
+    // return await response.json(); // Removed as result is unused
   } catch (error) {
     console.error('Error in sendToZapier:', error);
     throw error;
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
 
     // 4. Send to Zapier webhook
     try {
-      const result = await sendToZapier(formData);
+      await sendToZapier(formData);
       console.log('Successfully sent to Zapier webhook');
       
       return NextResponse.json({ 

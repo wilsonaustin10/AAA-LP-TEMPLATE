@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace google.maps.places {
     interface AutocompleteOptions {
       componentRestrictions?: ComponentRestrictions;
@@ -25,12 +26,17 @@ export interface AddressData {
 
 export function useGooglePlaces(
   inputRef: React.RefObject<HTMLInputElement>,
-  onAddressSelect: (addressData: AddressData) => void
+  onAddressSelect: (addressData: AddressData) => void,
+  readOnly: boolean
 ) {
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
 
   useEffect(() => {
+    if (readOnly) {
+      return;
+    }
+
     // Wait for both input ref and Google Maps to be available
     if (!inputRef.current || !window.google?.maps?.places) {
       console.log('Waiting for dependencies...');
@@ -91,5 +97,5 @@ export function useGooglePlaces(
     } catch (error) {
       console.error('Error initializing Places Autocomplete:', error);
     }
-  }, [inputRef, onAddressSelect]);
+  }, [inputRef, onAddressSelect, readOnly]);
 } 

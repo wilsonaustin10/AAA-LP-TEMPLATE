@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { FormState, FormStep, FormErrors, SubmissionResponse } from '../types';
 import { setupPartialLeadCapture } from '../utils/formUtils';
+import { validatePhone, validateEmail } from '../utils/validation';
 
 interface FormContextType {
   formState: FormState;
@@ -13,6 +14,8 @@ interface FormContextType {
   clearFormData: () => void;
   submitForm: () => Promise<SubmissionResponse>;
   errors: FormErrors;
+  setFieldError: (field: string, error: string | undefined) => void;
+  clearFieldError: (field: string) => void;
 }
 
 const FormContext = createContext<FormContextType | undefined>(undefined);
@@ -41,15 +44,15 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
     return initialState;
   });
 
+  const [currentStep, setCurrentStep] = useState<FormStep>('initial');
+  const [errors, setErrors] = useState<FormErrors>({});
+
   // Track form load time for analytics
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      (window as any).pageLoadTime = Date.now();
+      window.pageLoadTime = Date.now();
     }
   }, []);
-
-  const [currentStep, setCurrentStep] = useState<FormStep>('initial');
-  const [errors, setErrors] = useState<FormErrors>({});
 
   // Persist form data to localStorage
   useEffect(() => {
@@ -64,52 +67,86 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       const cleanup = setupPartialLeadCapture(formState);
       return cleanup;
     }
-  }, [currentStep, formState.address, formState.phone]);
+  }, [currentStep, formState]);
+
+  // Memoized validation functions
+  const validateField = useCallback((field: keyof FormState, value: any): string | undefined => {
+    switch (field) {
+      case 'phone':
+        return value && !validatePhone(value) ? 'Please enter a valid phone number' : undefined;
+      case 'email':
+        return value && !validateEmail(value) ? 'Please enter a valid email address' : undefined;
+      case 'address':
+        return !value?.trim() ? 'Property address is required' : undefined;
+      case 'consent':
+        return !value ? 'You must consent to be contacted' : undefined;
+      default:
+        return undefined;
+    }
+  }, []);
 
   // Optimized form state updates with validation
-  const updateFormData = (newData: Partial<FormState>) => {
+  const updateFormData = useCallback((newData: Partial<FormState>) => {
     setFormState(prev => {
       const updated = { ...prev, ...newData };
       
-      // Validate critical fields immediately
-      const criticalErrors: FormErrors = {};
-      if (updated.phone && !/^\+?[\d\s-()]{10,}$/.test(updated.phone)) {
-        criticalErrors.phone = 'Invalid phone format';
-      }
-      if (updated.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(updated.email)) {
-        criticalErrors.email = 'Invalid email format';
-      }
+      // Validate only changed fields
+      const newErrors: FormErrors = {};
+      Object.keys(newData).forEach((key) => {
+        const error = validateField(key as keyof FormState, updated[key as keyof FormState]);
+        if (error) {
+          newErrors[key] = error;
+        }
+      });
       
-      // Update errors if critical validation fails
-      if (Object.keys(criticalErrors).length > 0) {
-        setErrors(prev => ({ ...prev, ...criticalErrors }));
+      // Update errors for changed fields
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(prev => ({ ...prev, ...newErrors }));
+      } else {
+        // Clear errors for successfully validated fields
+        setErrors(prev => {
+          const cleared = { ...prev };
+          Object.keys(newData).forEach(key => {
+            delete cleared[key];
+          });
+          return cleared;
+        });
       }
       
       return updated;
     });
-  };
+  }, [validateField]);
+
+  // Field-specific error management
+  const setFieldError = useCallback((field: string, error: string | undefined) => {
+    setErrors(prev => {
+      if (error) {
+        return { ...prev, [field]: error };
+      }
+      const { [field]: _, ...rest } = prev;
+      return rest;
+    });
+  }, []);
+
+  const clearFieldError = useCallback((field: string) => {
+    setErrors(prev => {
+      const { [field]: _, ...rest } = prev;
+      return rest;
+    });
+  }, []);
 
   // Enhanced form validation with detailed error messages
-  const validateForm = (): boolean => {
-    const newErrors = {} as FormErrors;
+  const validateForm = useCallback((): boolean => {
+    const newErrors: FormErrors = {};
 
-    // Required fields validation with specific messages
-    if (!formState.address?.trim()) {
-      newErrors.address = 'Property address is required';
-    }
-    if (!formState.phone?.trim()) {
-      newErrors.phone = 'Valid phone number is required';
-    } else if (!/^\+?[\d\s-()]{10,}$/.test(formState.phone)) {
-      newErrors.phone = 'Please enter a valid phone number';
-    }
-    if (!formState.consent) {
-      newErrors.consent = 'You must consent to be contacted';
-    }
-    if (formState.email) {
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email)) {
-        newErrors.email = 'Please enter a valid email address';
+    // Required fields validation
+    const requiredFields: Array<keyof FormState> = ['address', 'phone', 'consent'];
+    requiredFields.forEach(field => {
+      const error = validateField(field, formState[field]);
+      if (error) {
+        newErrors[field] = error;
       }
-    }
+    });
 
     // Additional field validations based on current step
     if (currentStep === 'property-details' && !formState.propertyCondition) {
@@ -118,22 +155,26 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
     if (currentStep === 'timeline' && !formState.timeframe) {
       newErrors.timeframe = 'Please select your preferred timeframe';
     }
+    if (currentStep === 'contact') {
+      if (!formState.firstName) newErrors.firstName = 'First name is required';
+      if (!formState.lastName) newErrors.lastName = 'Last name is required';
+      if (!formState.email) newErrors.email = 'Email is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formState, currentStep, validateField]);
 
-  const clearFormData = () => {
+  const clearFormData = useCallback(() => {
     setFormState(initialState);
     setErrors({});
     if (typeof window !== 'undefined') {
       localStorage.removeItem('leadFormData');
     }
-  };
+  }, []);
 
   // Handle initial partial submission
-  const submitPartialLead = async (): Promise<SubmissionResponse> => {
-    // Validate required fields
+  const submitPartialLead = useCallback(async (): Promise<SubmissionResponse> => {
     if (!formState.address || !formState.phone || !formState.consent) {
       return { success: false, error: 'Address, phone, and consent are required' };
     }
@@ -155,7 +196,6 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
         throw new Error(result.error || 'Failed to submit partial lead');
       }
 
-      // Store leadId for later use
       updateFormData({ leadId: result.leadId });
       return { success: true, leadId: result.leadId };
     } catch (error) {
@@ -165,10 +205,10 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
         error: error instanceof Error ? error.message : 'Unknown error' 
       };
     }
-  };
+  }, [formState.address, formState.phone, formState.consent, updateFormData]);
 
-  // Modified step completion handler
-  const isStepComplete = (step: FormStep): boolean => {
+  // Memoized step completion handler
+  const isStepCompleted = useCallback((step: FormStep): boolean => {
     switch (step) {
       case 'initial':
         // Submit partial lead when first step is completed
@@ -187,10 +227,10 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       default:
         return false;
     }
-  };
+  }, [formState, submitPartialLead]);
 
   // Modified form submission to include leadId
-  const submitForm = async (): Promise<SubmissionResponse> => {
+  const submitForm = useCallback(async (): Promise<SubmissionResponse> => {
     if (!validateForm()) {
       return { success: false, error: 'Please correct the errors before submitting' };
     }
@@ -217,12 +257,12 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
         clearFormData();
         // Track successful submission
         if (typeof window !== 'undefined') {
-          (window as any).gtag?.('event', 'form_submission_success', {
+          window.gtag?.('event', 'form_submission_success', {
             event_category: 'Lead',
             event_label: 'Complete'
           });
-          (window as any).fbq?.('track', 'Lead');
-          (window as any).hj?.('trigger', 'form_submission_success');
+          window.fbq?.('track', 'Lead');
+          window.hj?.('trigger', 'form_submission_success');
         }
       }
 
@@ -232,19 +272,34 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       updateFormData({ error: errorMessage, isSubmitting: false });
       return { success: false, error: errorMessage };
     }
-  };
+  }, [formState, validateForm, updateFormData, clearFormData]);
+
+  // Memoize context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({
+    formState,
+    updateFormData,
+    currentStep,
+    setCurrentStep,
+    isStepCompleted,
+    clearFormData,
+    submitForm,
+    errors,
+    setFieldError,
+    clearFieldError,
+  }), [
+    formState,
+    updateFormData,
+    currentStep,
+    isStepCompleted,
+    clearFormData,
+    submitForm,
+    errors,
+    setFieldError,
+    clearFieldError,
+  ]);
 
   return (
-    <FormContext.Provider value={{
-      formState,
-      updateFormData,
-      currentStep,
-      setCurrentStep,
-      isStepCompleted: isStepComplete,
-      clearFormData,
-      submitForm,
-      errors,
-    }}>
+    <FormContext.Provider value={contextValue}>
       {children}
     </FormContext.Provider>
   );
@@ -256,4 +311,4 @@ export function useForm() {
     throw new Error('useForm must be used within a FormProvider');
   }
   return context;
-} 
+}
