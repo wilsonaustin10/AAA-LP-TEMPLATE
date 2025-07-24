@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { LeadFormData } from '@/src/types';
-import { rateLimit } from '@/src/utils/rateLimit';
+import { LeadFormData } from '../../types';
+import { rateLimit } from '../../utils/rateLimit';
 
 // Validate partial form data (only address and phone)
 function validatePartialData(data: Partial<LeadFormData>): boolean {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { LeadFormData } from '@/src/types';
-import { rateLimit } from '@/src/utils/rateLimit';
+import { LeadFormData } from '../../types';
+import { rateLimit } from '../../utils/rateLimit';
 
 // Validate complete form data
 function validateFormData(data: Partial<LeadFormData>): data is LeadFormData {
