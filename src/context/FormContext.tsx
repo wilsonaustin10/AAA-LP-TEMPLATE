@@ -70,14 +70,14 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
   }, [currentStep, formState]);
 
   // Memoized validation functions
-  const validateField = useCallback((field: keyof FormState, value: any): string | undefined => {
+  const validateField = useCallback((field: keyof FormState, value: unknown): string | undefined => {
     switch (field) {
       case 'phone':
-        return value && !validatePhone(value) ? 'Please enter a valid phone number' : undefined;
+        return value && !validatePhone(value as string) ? 'Please enter a valid phone number' : undefined;
       case 'email':
-        return value && !validateEmail(value) ? 'Please enter a valid email address' : undefined;
+        return value && !validateEmail(value as string) ? 'Please enter a valid email address' : undefined;
       case 'address':
-        return !value?.trim() ? 'Property address is required' : undefined;
+        return !(value as string)?.trim() ? 'Property address is required' : undefined;
       case 'consent':
         return !value ? 'You must consent to be contacted' : undefined;
       default:
@@ -123,14 +123,16 @@ export function FormProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         return { ...prev, [field]: error };
       }
-      const { [field]: _, ...rest } = prev;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [field]: _removed, ...rest } = prev;
       return rest;
     });
   }, []);
 
   const clearFieldError = useCallback((field: string) => {
     setErrors(prev => {
-      const { [field]: _, ...rest } = prev;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [field]: _removed, ...rest } = prev;
       return rest;
     });
   }, []);

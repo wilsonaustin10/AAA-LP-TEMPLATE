@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { LeadFormData } from '@/types';
-import { rateLimit } from '@/utils/rateLimit';
+import { LeadFormData } from '@/src/types';
+import { rateLimit } from '@/src/utils/rateLimit';
 
 // Validate complete form data
 function validateFormData(data: Partial<LeadFormData>): data is LeadFormData {
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     console.log('Received complete form submission request');
 
     // 1. Rate limiting check
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || 'unknown';
     const timestamp = new Date().toISOString();
     

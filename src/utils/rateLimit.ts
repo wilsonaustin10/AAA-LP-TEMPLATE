@@ -1,72 +1,41 @@
-// Rate limiting configuration
-const RATE_LIMIT = 5; // requests per window
-const RATE_WINDOW = 60 * 1000; // 1 minute in milliseconds
+// Simple in-memory rate limiter
+const attempts = new Map<string, { count: number; firstAttempt: number }>();
 
-// Type definitions
-export interface RateLimitStore {
-  count: number;
-  timestamp: number;
-}
+const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 5; // Maximum 5 attempts per window
 
-export interface RateLimitResult {
-  success: boolean;
-  remaining?: number;
-  retryAfter?: number;
-}
-
-// In-memory store for rate limiting
-// Note: In production, use Redis or similar for distributed systems
-const rateLimitStore = new Map<string, RateLimitStore>();
-
-// Clean up old entries periodically
-const cleanup = () => {
+export async function rateLimit(ip: string): Promise<{ success: boolean; retryAfter?: number }> {
   const now = Date.now();
-  rateLimitStore.forEach((data, key) => {
-    if (now - data.timestamp > RATE_WINDOW) {
-      rateLimitStore.delete(key);
+  const userAttempts = attempts.get(ip);
+
+  if (!userAttempts) {
+    attempts.set(ip, { count: 1, firstAttempt: now });
+    return { success: true };
+  }
+
+  const timeSinceFirst = now - userAttempts.firstAttempt;
+
+  if (timeSinceFirst > WINDOW_MS) {
+    // Reset the window
+    attempts.set(ip, { count: 1, firstAttempt: now });
+    return { success: true };
+  }
+
+  if (userAttempts.count >= MAX_ATTEMPTS) {
+    const retryAfter = Math.ceil((WINDOW_MS - timeSinceFirst) / 1000);
+    return { success: false, retryAfter };
+  }
+
+  userAttempts.count++;
+  return { success: true };
+}
+
+// Cleanup old entries periodically
+setInterval(() => {
+  const now = Date.now();
+  attempts.forEach((value, key) => {
+    if (now - value.firstAttempt > WINDOW_MS) {
+      attempts.delete(key);
     }
   });
-};
-
-setInterval(cleanup, RATE_WINDOW);
-
-/**
- * Rate limit function that implements a sliding window approach
- * @param identifier - Unique identifier for the client (e.g., IP address)
- * @returns Promise<RateLimitResult> - Result of the rate limit check
- */
-export async function rateLimit(identifier: string): Promise<RateLimitResult> {
-  const now = Date.now();
-  const userLimit = rateLimitStore.get(identifier);
-
-  // Reset if window has expired
-  if (!userLimit || (now - userLimit.timestamp) > RATE_WINDOW) {
-    rateLimitStore.set(identifier, { count: 1, timestamp: now });
-    return {
-      success: true,
-      remaining: RATE_LIMIT - 1
-    };
-  }
-
-  // Check if limit exceeded
-  if (userLimit.count >= RATE_LIMIT) {
-    const retryAfter = Math.ceil(
-      (RATE_WINDOW - (now - userLimit.timestamp)) / 1000
-    );
-    
-    return {
-      success: false,
-      remaining: 0,
-      retryAfter
-    };
-  }
-
-  // Increment counter
-  userLimit.count += 1;
-  rateLimitStore.set(identifier, userLimit);
-
-  return {
-    success: true,
-    remaining: RATE_LIMIT - userLimit.count
-  };
-} 
+}, WINDOW_MS);

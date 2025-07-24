@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { LeadFormData } from '@/types';
-import { rateLimit } from '@/utils/rateLimit';
+import { LeadFormData } from '@/src/types';
+import { rateLimit } from '@/src/utils/rateLimit';
 
 // Validate partial form data (only address and phone)
 function validatePartialData(data: Partial<LeadFormData>): boolean {
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     // Log incoming request
     console.log('Received partial form submission request');
 
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || 'unknown';
     
     // Apply rate limiting

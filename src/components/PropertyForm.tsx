@@ -218,7 +218,7 @@ export default function PropertyForm({
             </div>
             <div className="ml-3 text-sm">
               <label htmlFor="consent" className="text-gray-700">
-                I agree to be contacted by {{COMPANY_NAME}} about my property
+                I agree to be contacted by {process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'} about my property
               </label>
               {touchedFields.has('consent') && errors.consent && (
                 <p className="mt-1 text-red-600 text-xs">{errors.consent}</p>

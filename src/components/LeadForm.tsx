@@ -79,7 +79,7 @@ export default function LeadForm() {
     setErrors(prev => ({ ...prev, address: undefined }));
   };
 
-  useGooglePlaces(addressInputRef, handleAddressSelect);
+  useGooglePlaces(addressInputRef, handleAddressSelect, false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -12,7 +12,7 @@ export default function PrivacyPolicy() {
             <section>
               <h2 className="text-xl font-semibold mb-3 text-gray-800">1. Introduction</h2>
               <p>
-                { '{{businessName}} ("we," "our," or "us") respects your privacy and is committed to protecting' } 
+                {process.env.NEXT_PUBLIC_COMPANY_NAME || "Your Company Name"} (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) respects your privacy and is committed to protecting 
                 it through our compliance with this policy. This policy describes the types of information we 
                 may collect from you or that you may provide when you visit our website and our practices for 
                 collecting, using, maintaining, protecting, and disclosing that information.
@@ -128,12 +128,12 @@ export default function PrivacyPolicy() {
               <p>
                 To ask questions or comment about this privacy policy and our privacy practices, contact us at: 
                 <br />
-                <a href="mailto:{{publicEmail}}" className="text-primary hover:underline">
-                  { '{{publicEmail}}' }
+                <a href={`mailto:${process.env.NEXT_PUBLIC_EMAIL || "info@example.com"}`} className="text-primary hover:underline">
+                  {process.env.NEXT_PUBLIC_EMAIL || "info@example.com"}
                 </a>
                 <br />
-                <a href="tel:{{publicPhone}}" className="text-primary hover:underline">
-                  { '{{publicPhone}}' }
+                <a href={`tel:${process.env.NEXT_PUBLIC_PHONE || "(555) 123-4567"}`} className="text-primary hover:underline">
+                  {process.env.NEXT_PUBLIC_PHONE || "(555) 123-4567"}
                 </a>
               </p>
             </section>

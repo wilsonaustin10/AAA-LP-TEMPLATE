@@ -8,16 +8,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '{{primaryColor}}',
-        secondary: '{{secondaryColor}}',
+        primary: '#1a73e8', // Default blue, can be overridden
+        secondary: '#34a853', // Default green, can be overridden
         accent: '#000000', // COMPANY ACCENT COLOR PLACEHOLDER
         highlight: '#000000', // COMPANY HIGHLIGHT COLOR PLACEHOLDER
         background: '#ffffff', // White
         text: '#333333', // Dark gray for regular text
         footer: {
-          bg: '{{primaryColor}}',
+          bg: '#1a73e8', // Same as primary
           text: '#ffffff', // White
-          hover: '{{secondaryColor}}',
+          hover: '#34a853', // Same as secondary
         }
       },
     },

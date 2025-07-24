@@ -7,14 +7,14 @@ export default function AboutPage() {
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white pt-20">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold text-center mb-8 text-primary">
-          About {{businessName}}
+          About {process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'}
         </h1>
         
         <div className="bg-white p-8 rounded-lg shadow-lg space-y-6">
           <div className="flex justify-center mb-8">
             <Image
-              src="{{logoUrl}}"
-              alt="{{businessName}}"
+              src={process.env.NEXT_PUBLIC_LOGO_URL || '/logo.png'}
+              alt={process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'}
               width={300}
               height={80}
               className="mb-6"
@@ -23,7 +23,7 @@ export default function AboutPage() {
           
           <h2 className="text-2xl font-semibold text-primary mb-4">Our Mission</h2>
           <p className="text-gray-700 leading-relaxed mb-6">
-            At {{businessName}}, we&apos;re more than just property investors – our team has a genuine passion for helping families navigate through difficult situations. We understand that life can throw unexpected challenges your way, and selling your home quickly might be necessary during these times.
+            At {process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'}, we&apos;re more than just property investors – our team has a genuine passion for helping families navigate through difficult situations. We understand that life can throw unexpected challenges your way, and selling your home quickly might be necessary during these times.
           </p>
           
           <p className="text-gray-700 leading-relaxed mb-6">

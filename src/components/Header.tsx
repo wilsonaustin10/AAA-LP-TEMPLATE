@@ -11,8 +11,8 @@ export default function Header() {
           <Link href="/" className="flex items-center">
             <div className="relative w-auto h-auto">
               <Image
-                src={process.env.NEXT_PUBLIC_LOGO_URL || "{{logoUrl}}"}
-                alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "{{businessName}}"}
+                src={process.env.NEXT_PUBLIC_LOGO_URL || '/logo.png'}
+                alt={process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company Name'}
                 width={150}
                 height={40}
                 style={{ objectFit: 'contain' }}
